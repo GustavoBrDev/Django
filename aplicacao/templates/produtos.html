@@ -1,26 +1,19 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Lista de Produtos</title>
-    </head>
-    <body>
-        <h1>Produtos</h1>
-        <p>Os melhores produtos do mercado, venha aproveitar! </p>
-        <hr>
+<head>
+    <title>Lista de Produtos</title>
+</head>
+<body>
+    <h1>Produtos</h1>
+    <p>Os melhores produtos do mercado, venha aproveitar!</p>
+    <hr>
 
-        <div>
+    <div>
+        {% for produto in produtos %}
             <div>
-                <h1>Nome do produto
+                <h1>Nome do produto: {{ produto.nome }}</h1>
             </div>
-            <div>
-                <h1>Nome do produto
-            </div>
-            <div>
-                <h1>Nome do produto
-            </div>
-            <div>
-                <h1>Nome do produto
-            </div>
-        </div>
-    </body>
+        {% endfor %}
+    </div>
+</body>
 </html>
