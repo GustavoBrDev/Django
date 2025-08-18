@@ -1,19 +1,75 @@
-<!DOCTYPE html>
-<html>
+{% load bootstrap4 %}
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
 <head>
-    <title>Lista de Produtos</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Produtos</title>
+
+  <style>
+    /* ajustes visuais */
+    .card-product { 
+      transition: transform .2s ease, box-shadow .2s; 
+      display: flex; 
+      flex-direction: column; 
+      border-radius: 12px;
+      border: 1px solid #e6e6e6;
+    }
+    .card-product:hover { 
+      transform: translateY(-6px); 
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); 
+    }
+    .product-title { 
+      font-size: 1.05rem; 
+      font-weight: 600; 
+      color: #343a40;
+    }
+    .price { 
+      font-weight: 700; 
+      color: #28a745; 
+      font-size: 1rem;
+    }
+    .card-body { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between; 
+    }
+  </style>
 </head>
 <body>
-    <h1>Produtos</h1>
-    <p>Os melhores produtos do mercado, venha aproveitar!</p>
-    <hr>
-
-    <div>
-        {% for produto in produtos %}
-            <div>
-                <h1>Nome do produto: {{ produto.nome }}</h1>
-            </div>
-        {% endfor %}
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div class="mb-2 mb-sm-0">
+        <h1 class="h4 mb-0">Produtos</h1>
+        <small class="text-muted">Os melhores produtos do mercado — aproveite!</small>
+      </div>
+      <!-- campo de busca -->
+      <form class="form-inline">
+        <input class="form-control form-control-sm" type="search" placeholder="Buscar..." aria-label="Buscar" name="q" value="{{ request.GET.q|default:'' }}">
+        <button class="btn btn-sm btn-outline-secondary ml-2" type="submit">OK</button>
+      </form>
     </div>
+
+    <div class="row d-flex flex-wrap">
+      {% for produto in produtos %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex">
+          <div class="card card-product w-100">
+            <div class="card-body">
+              <h5 class="product-title mb-3">{{ produto.nome }}</h5>
+              <div class="d-flex justify-content-end align-items-center mt-auto">
+                <div class="price">R$ {{ produto.preco|floatformat:2 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info mb-0">Nenhum produto encontrado.</div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
 </body>
 </html>
