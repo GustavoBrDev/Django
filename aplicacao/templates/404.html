@@ -1,10 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Página principal</title>
-    </head>
-    <body>
-        {(texto)}
-        <p>Descrição aqui</p>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Página principal</title>
+    <link rel="stylesheet" href="{% static 'aplicacao/styles.css' %}">
+</head>
+<body>
+    <div class="div-center">
+        <img src="{% static 'aplicacao/assets/notFound.jpg' %}" alt="Página não encontrada" class="not-found-image">
+    </div>
+</body>
 </html>

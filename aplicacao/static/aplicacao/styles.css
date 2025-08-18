@@ -1,0 +1,12 @@
+.div-center {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.not-found-image {
+    width: 40%;
+    height: 40%;
+}
