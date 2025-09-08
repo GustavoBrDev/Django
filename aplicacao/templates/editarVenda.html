@@ -1,0 +1,48 @@
+{% load bootstrap4 %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Venda</title>
+  {% bootstrap_css %}
+</head>
+<form method="post">
+    {% csrf_token %}
+    {{ venda_form.as_p }}
+    {{ formset.management_form }}
+  
+    <style>
+      input[type="checkbox"][name$="-DELETE"] { display: none !important; }
+      tr.to-delete { display: none; }
+    </style>
+  
+    <h1>ID da Venda: {{venda.id}}</h1>
+    <h3>Venda do cliente {{ venda.cliente.nome}}<h3>
+
+    <table>
+      <thead>
+        <tr><th>Produto</th><th>Quantidade</th><th>Ação</th></tr>
+      </thead>
+      <tbody>
+        {% for f in formset.forms %}
+          <tr class="{% if f.DELETE.value %}to-delete{% endif %}">
+            <td>
+              {{ f.produto }}
+            </td>
+            <td>
+              {{ f.quantidade }}
+            </td>
+            <td>
+              {{ f.DELETE }}
+              <button type="submit" name="remove_item" class="btn btn-danger" value="{{ forloop.counter0 }}">
+                Remover
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  
+    <button type="submit" name="add_item" value="1" class="btn btn-info">Adicionar Item</button>
+    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+  </form>
+  

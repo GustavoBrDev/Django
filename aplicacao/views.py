@@ -137,7 +137,8 @@ def cad_user(request):
         return render(request, "cad_user.html")
     else:
         return render(request, "cad_user.html")
-    
+
+@login_required(login_url="url_entrar") 
 def criar_cliente(request):
     if request.method == 'POST':
         cliente_form = ClienteForm(request.POST)
@@ -157,6 +158,7 @@ def criar_cliente(request):
         'perfil_form': perfil_form,
     })
 
+@login_required(login_url="url_entrar")
 def criar_venda(request):
     prefix = 'items'
     venda_obj_temp = Venda()  
@@ -210,6 +212,7 @@ def criar_venda(request):
         'formset': formset,
     })
 
+@login_required(login_url="url_entrar")
 def editar_venda(request, pk):
     prefix = 'items'                  
     venda = get_object_or_404(Venda, pk=pk)
@@ -239,7 +242,7 @@ def editar_venda(request, pk):
             total = int(post.get(total_key, 0))
             post[total_key] = str(total + 1)     
             formset = ItemVendaFormSet(post, instance=venda, prefix=prefix)
-            return render(request, 'editVenda.html', {
+            return render(request, 'editarVenda.html', {
                 'venda_form': venda_form,
                 'formset': formset,
                 'venda': venda,
@@ -247,16 +250,13 @@ def editar_venda(request, pk):
 
         # Salvar
         if venda_form.is_valid():
-            venda_obj = venda_form.save(commit=False)
+            
+            print("Entrou aqui")
+            venda_form.save()
 
-            formset = ItemVendaFormSet(request.POST, instance=venda_obj, prefix=prefix)
-
-            if formset.is_valid():
-                with transaction.atomic():
-                    venda_obj.save()
-                    formset.instance = venda_obj
-                    formset.save()
-                return redirect('url_vendas') 
+            formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
+            formset.save()
+            return redirect('url_vendas')
         else:
             formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
 
@@ -275,6 +275,7 @@ def editar_venda(request, pk):
             'venda': venda,
         })
 
+@login_required(login_url="url_entrar")
 def deletarVenda ( request, id ):
 
     venda = get_object_or_404(Venda, id=id)
