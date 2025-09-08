@@ -255,7 +255,11 @@ def editar_venda(request, pk):
             venda_form.save()
 
             formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
-            formset.save()
+
+            # Funcionou 50% das vezes
+            for item in formset.forms:
+                item.save()
+
             return redirect('url_vendas')
         else:
             formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
