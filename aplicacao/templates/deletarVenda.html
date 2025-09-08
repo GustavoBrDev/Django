@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Deletar Produto</title>
+  <title>Deletar Venda</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
   <style>
@@ -127,23 +127,23 @@
           <div class="d-flex align-items-center">
             <div class="warning-icon">!</div>
             <div>
-              <h1 class="h4">Deletar Produto</h1>
+              <h1 class="h4">Deletar Vendaroduto</h1>
               <div class="muted-note">Confirmação de exclusão</div>
             </div>
           </div>
-          <div class="text-right text-muted small">ID: {{ produto.id }}</div>
+          <div class="text-right text-muted small">ID: {{ venda.id }}</div>
         </div>
 
-        <p class="lead">Você tem certeza que deseja deletar <span class="product-name">"{{ produto.nome }}"</span>?</p>
-        <p class="muted-note">Essa ação é permanente e removerá o produto do sistema. Considere exportar ou registrar informações relevantes antes de prosseguir.</p>
+        <p class="lead">Você tem certeza que deseja deletar a venda do cliente <span class="product-name">{{ venda.cliente.nome }}</span>?</p>
+        <p class="muted-note">Essa ação é permanente e removerá a venda do sistema. Considere exportar ou registrar informações relevantes antes de prosseguir.</p>
 
         <div class="actions">
-          <form action="{% url 'url_deletar_produto' produto.id %}" method="POST" class="mb-0">
+          <form action="{% url 'deletar_venda' venda.id %}" method="POST" class="mb-0">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Deletar</button>
           </form>
 
-          <form action="{% url 'url_produtos' %}" method="GET" class="mb-0">
+          <form action="{% url 'url_vendas' %}" method="GET" class="mb-0">
             <button type="submit" class="btn btn-secondary">Cancelar</button>
           </form>
         </div>

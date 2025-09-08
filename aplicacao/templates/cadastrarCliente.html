@@ -1,0 +1,17 @@
+{% load bootstrap4 %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Cliente</title>
+  {% bootstrap_css %}
+</head>
+<form method="post">
+  {% csrf_token %}
+  <h3>Cliente</h3>
+  {{ cliente_form.as_p }}
+
+  <h4>Perfil</h4>
+  {{ perfil_form.as_p }}
+
+  <button type="submit">Salvar Cliente</button>
+</form>

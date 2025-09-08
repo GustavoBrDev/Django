@@ -11,7 +11,7 @@ class Produto ( models.Model ):
 
 class PerfilCliente ( models.Model ):
     endereco = models.CharField("Endereco", max_length=100, null=False)
-    telefone = models.PhoneField("Telefone", max_length=50)   
+    telefone = PhoneField("Telefone", max_length=50)   
 
     def __str__(self):
         return self.endereco + self.telefone
@@ -24,12 +24,12 @@ class Cliente ( models.Model ):
     def __str__(self):
         return self.nome
     
-class Vendas ( models.Model ):
+class Venda ( models.Model ):
     cliente = models.ForeignKey( Cliente, null=False, on_delete=models.CASCADE)
     data = models.DateTimeField ( "Data", auto_now_add=True, null=False)
-    produtos = models.ManyToManyField("Produtos", through="ItemVenda")
+    produtos = models.ManyToManyField("Produto", through="ItemVenda")
 
 class ItemVenda ( models.Model ):
-    venda = models.ForeignKey("Vendas", null=False, on_delete=models.CASCADE)
+    venda = models.ForeignKey("Venda", null=False, on_delete=models.CASCADE)
     produto = models.ForeignKey("Produto", null=False, on_delete=models.CASCADE)
     quantidade = models.PositiveIntegerField("Quantidade", default=0)

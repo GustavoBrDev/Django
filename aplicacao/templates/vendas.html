@@ -1,0 +1,53 @@
+{% load static %}
+{% load bootstrap4 %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">>
+  <title>Lista de Vendas</title>
+  {% bootstrap_css %}
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h4 mb-0">Vendas</h1>
+      <a href="{% url 'criar_venda' %}" class="btn btn-primary">Nova Venda</a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-secondary">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Data</th>
+                <th scope="col" class="text-end">Cliente</th>
+                <th scope="col" class="text-end">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venda in vendas %}
+                <tr>
+                  <td>{{ venda.id }}</td>
+                  <td>{{ venda.data|date:"d/m/Y" }}</td>
+                  <td class="text-end">{{ venda.cliente.nome }}</td>
+                  <td class="text-end">
+                    <a href="{% url 'editar_venda' venda.id %}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                    <a href="{% url 'deletar_venda' venda.id %}" class="btn btn-sm btn-outline-danger">Deletar</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-3">Nenhuma venda encontrada.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

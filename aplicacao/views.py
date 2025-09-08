@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+
+from aplicacao.forms import *
 from .models import Produto
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
 
 # Aqui são feitas as views
 def index ( request ):
@@ -135,6 +138,169 @@ def cad_user(request):
     else:
         return render(request, "cad_user.html")
     
+def criar_cliente(request):
+    if request.method == 'POST':
+        cliente_form = ClienteForm(request.POST)
+        perfil_form = PerfilClienteForm(request.POST)
+        if cliente_form.is_valid() and perfil_form.is_valid():
+            cliente = cliente_form.save(commit=False)
+            perfil = perfil_form.save()
+            cliente.perfil = perfil
+            cliente.save()
+            return redirect('criar_venda')  
+    else:
+        cliente_form = ClienteForm()
+        perfil_form = PerfilClienteForm()
+
+    return render(request, 'cadastrarCliente.html', {
+        'cliente_form': cliente_form,
+        'perfil_form': perfil_form,
+    })
+
+def criar_venda(request):
+    prefix = 'items'
+    venda_obj_temp = Venda()  
+
+    if request.method == 'POST':
+        venda_form = VendasForm(request.POST)
+
+        # Remover
+        if 'remove_item' in request.POST:
+            idx = int(request.POST['remove_item'])
+            post = request.POST.copy()
+            delete_key = f'{prefix}-{idx}-DELETE'
+            post[delete_key] = 'on'  
+            formset = ItemVendaFormSet(post, instance=venda_obj_temp, prefix=prefix)
+            return render(request, 'cadastrarVenda.html', {
+                'venda_form': venda_form,
+                'formset': formset,
+            })
+
+        # Adicionar
+        if 'add_item' in request.POST:
+            post = request.POST.copy()
+            total_key = f'{prefix}-TOTAL_FORMS'
+            total = int(post.get(total_key, 0))
+            post[total_key] = str(total + 1)
+            formset = ItemVendaFormSet(post, instance=venda_obj_temp, prefix=prefix)
+            return render(request, 'cadastrarVenda.html', {
+                'venda_form': venda_form,
+                'formset': formset,
+            })
+
+        # Salvar
+        if venda_form.is_valid():
+            venda_obj = venda_form.save(commit=False)
+            formset = ItemVendaFormSet(request.POST, instance=venda_obj, prefix=prefix)
+            if formset.is_valid():
+                with transaction.atomic():
+                    venda_obj.save()
+                    formset.save()
+                return redirect('url_vendas')
+        else:
+            formset = ItemVendaFormSet(request.POST, instance=venda_obj_temp, prefix=prefix)
+
+    else:
+        # GET inicial
+        venda_form = VendasForm()
+        formset = ItemVendaFormSet(instance=venda_obj_temp, prefix=prefix)
+
+    return render(request, 'cadastrarVenda.html', {
+        'venda_form': venda_form,
+        'formset': formset,
+    })
+
+def editar_venda(request, pk):
+    prefix = 'items'                  
+    venda = get_object_or_404(Venda, pk=pk)
+
+    if request.method == 'POST':
+        venda_form = VendasForm(request.POST, instance=venda)
+
+        formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
+
+        # Remover
+        if 'remove_item' in request.POST:
+            idx = int(request.POST['remove_item'])
+            post = request.POST.copy()                 
+            delete_key = f'{prefix}-{idx}-DELETE'    
+            post[delete_key] = 'on'                  
+            formset = ItemVendaFormSet(post, instance=venda, prefix=prefix)
+            return render(request, 'editarVenda.html', {
+                'venda_form': venda_form,
+                'formset': formset,
+                'venda': venda,                         
+            })
+
+        # Adicionar
+        if 'add_item' in request.POST:
+            post = request.POST.copy()
+            total_key = f'{prefix}-TOTAL_FORMS'       
+            total = int(post.get(total_key, 0))
+            post[total_key] = str(total + 1)     
+            formset = ItemVendaFormSet(post, instance=venda, prefix=prefix)
+            return render(request, 'editVenda.html', {
+                'venda_form': venda_form,
+                'formset': formset,
+                'venda': venda,
+            })
+
+        # Salvar
+        if venda_form.is_valid():
+            venda_obj = venda_form.save(commit=False)
+
+            formset = ItemVendaFormSet(request.POST, instance=venda_obj, prefix=prefix)
+
+            if formset.is_valid():
+                with transaction.atomic():
+                    venda_obj.save()
+                    formset.instance = venda_obj
+                    formset.save()
+                return redirect('url_vendas') 
+        else:
+            formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
+
+        return render(request, 'editarVenda.html', {
+            'venda_form': venda_form,
+            'formset': formset,
+            'venda': venda,
+        })
+
+    else:
+        venda_form = VendasForm(instance=venda)
+        formset = ItemVendaFormSet(instance=venda, prefix=prefix)
+        return render(request, 'editarVenda.html', {
+            'venda_form': venda_form,
+            'formset': formset,
+            'venda': venda,
+        })
+
+def deletarVenda ( request, id ):
+
+    venda = get_object_or_404(Venda, id=id)
+
+    if request.method == "GET":
+
+        context = {
+            'venda': venda
+        }
+
+        return render(request, 'deletarVenda.html', context)
+
+    elif request.method == "POST":
+
+        venda.delete()
+
+
+    return redirect("url_vendas")
+
+def vendas ( request ):
+    vendas = Venda.objects.all()
+    context = {
+        'vendas': vendas,
+    }
+    return render( request, 'vendas.html', context)
+
 def sair(request):
     logout(request)
     return redirect('url_entrar')
