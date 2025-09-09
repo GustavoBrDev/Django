@@ -10,12 +10,8 @@ from django.contrib import messages
 from django.db import transaction
 
 # Aqui são feitas as views
-def index ( request ):
-    context = {
-        "texto": "Olá mundo!",
-    }
-    return render( request, 'index.html', context)
 
+# Produtos
 @login_required(login_url="url_entrar")
 def produtos ( request ):
     produtos = Produto.objects.all()
@@ -105,58 +101,14 @@ def deletarProduto ( request, id ):
 
     return redirect("url_produtos")
 
-def entrar(request):
-    if request.method == "GET":
-        return render(request, "entrar.html")
-    else:
-        username = request.POST.get('nome')
-        password = request.POST.get('senha')
-        user = authenticate(username=username, password=password)
-
-        if user:
-            login(request, user)
-            return redirect('url_produtos')
-        else:
-            return HttpResponse("Falha no login")
-
-def cad_user(request):
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
-        senha = request.POST.get('senha')
-        email = request.POST.get('email')
-
-        user = User.objects.filter(username=nome).first()
-
-        if user:
-            return HttpResponse("Usuário já existe")
-
-        user = User.objects.create_user(username=nome, email=email, password=senha)
-
-        user.save()
-        messages.success(request, "Usuário cadastrado")
-        return render(request, "cad_user.html")
-    else:
-        return render(request, "cad_user.html")
-
-@login_required(login_url="url_entrar") 
-def criar_cliente(request):
-    if request.method == 'POST':
-        cliente_form = ClienteForm(request.POST)
-        perfil_form = PerfilClienteForm(request.POST)
-        if cliente_form.is_valid() and perfil_form.is_valid():
-            cliente = cliente_form.save(commit=False)
-            perfil = perfil_form.save()
-            cliente.perfil = perfil
-            cliente.save()
-            return redirect('url_clientes')  
-    else:
-        cliente_form = ClienteForm()
-        perfil_form = PerfilClienteForm()
-
-    return render(request, 'cadastrarCliente.html', {
-        'cliente_form': cliente_form,
-        'perfil_form': perfil_form,
-    })
+# Vendas
+@login_required(login_url="url_entrar")
+def vendas ( request ):
+    vendas = Venda.objects.all()
+    context = {
+        'vendas': vendas,
+    }
+    return render( request, 'vendas.html', context)
 
 @login_required(login_url="url_entrar")
 def criar_venda(request):
@@ -313,14 +265,7 @@ def deletarVenda ( request, id ):
 
     return redirect("url_vendas")
 
-@login_required(login_url="url_entrar")
-def vendas ( request ):
-    vendas = Venda.objects.all()
-    context = {
-        'vendas': vendas,
-    }
-    return render( request, 'vendas.html', context)
-
+# Clientes
 @login_required(login_url="url_entrar")
 def clientes ( request ):
     clientes = Cliente.objects.all()
@@ -328,6 +273,26 @@ def clientes ( request ):
         'clientes': clientes,
     }
     return render( request, 'clientes.html', context)
+
+@login_required(login_url="url_entrar") 
+def criar_cliente(request):
+    if request.method == 'POST':
+        cliente_form = ClienteForm(request.POST)
+        perfil_form = PerfilClienteForm(request.POST)
+        if cliente_form.is_valid() and perfil_form.is_valid():
+            cliente = cliente_form.save(commit=False)
+            perfil = perfil_form.save()
+            cliente.perfil = perfil
+            cliente.save()
+            return redirect('url_clientes')  
+    else:
+        cliente_form = ClienteForm()
+        perfil_form = PerfilClienteForm()
+
+    return render(request, 'cadastrarCliente.html', {
+        'cliente_form': cliente_form,
+        'perfil_form': perfil_form,
+    })
 
 @login_required(login_url="url_entrar")
 def editar_cliente(request, id):
@@ -366,9 +331,50 @@ def deletarCliente ( request, id ):
 
     return redirect("url_clientes")
 
+# Autenticação 
 def sair(request):
     logout(request)
     return redirect('url_entrar')
+def entrar(request):
+    if request.method == "GET":
+        return render(request, "entrar.html")
+    else:
+        username = request.POST.get('nome')
+        password = request.POST.get('senha')
+        user = authenticate(username=username, password=password)
+
+        if user:
+            login(request, user)
+            return redirect('url_produtos')
+        else:
+            return HttpResponse("Falha no login")
+
+def cad_user(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        senha = request.POST.get('senha')
+        email = request.POST.get('email')
+
+        user = User.objects.filter(username=nome).first()
+
+        if user:
+            return HttpResponse("Usuário já existe")
+
+        user = User.objects.create_user(username=nome, email=email, password=senha)
+
+        user.save()
+        messages.success(request, "Usuário cadastrado")
+        return render(request, "cad_user.html")
+    else:
+        return render(request, "cad_user.html")
+
+# Outros
+
+def index ( request ):
+    context = {
+        "texto": "Olá mundo!",
+    }
+    return render( request, 'index.html', context)
 
 def custom_404(request):
     return render(request, '404.html', status=404)

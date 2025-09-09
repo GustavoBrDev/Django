@@ -28,12 +28,58 @@
     html,body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.4; }
     a { color: inherit; text-decoration: none; }
 
+    /* ===== Header / Nav ===== */
+    .topbar {
+      background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .topbar .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .nav-link {
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: background .12s ease, color .12s ease, transform .06s ease;
+    }
+    .nav-link:hover {
+      background: #f3f6fb;
+      color: var(--text);
+    }
+    .nav-link.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+      transform: translateY(0);
+    }
+
+    /* small helper to keep layout consistent with your table container */
+    .page-container {
+      max-width: 1100px;
+      margin: 18px auto;
+      padding: 0 16px;
+    }
+
     /* Container for the table (responsive) */
     .table-responsive {
       width: 100%;
-      max-width: 1100px;
-      margin: 18px auto;
-      padding: 16px;
+      margin-top: 8px;
+      padding: 16px 0 0 0;
       overflow-x: auto; /* permite rolar horizontalmente em telas pequenas */
       background: transparent;
     }
@@ -145,11 +191,9 @@
     .btn-outline-danger:hover { background: rgba(220,53,69,0.04); }
 
     .btn + .btn { margin-left: 4px; }
-
-    /* Formularios inline (caso existam mais tarde) */
+    
     form { margin: 0; }
 
-    /* Alerta */
     .alert {
       padding: 12px 16px;
       border-radius: 6px;
@@ -160,7 +204,6 @@
       margin: 18px auto;
     }
 
-    /* Botão novo produto fixado abaixo (mantive sua posição simples) */
     #newProduct {
       display: inline-block;
       margin: 16px auto 36px;
@@ -168,66 +211,88 @@
       border-radius: 6px;
     }
 
-    /* responsividade: reduz espaçamentos em telas pequenas */
     @media (max-width: 720px) {
       .table { min-width: 520px; }
       .table thead th, .table tbody td { padding: 10px 12px; }
       .product-title { font-size: 1rem; }
       .price { font-size: 0.95rem; }
       .actions { gap: 6px; }
+      .topbar .container { padding: 10px 12px; }
+      .nav-link { padding: 7px 10px; font-size: 0.9rem; }
     }
 
     @media (max-width: 420px) {
       .table { min-width: 420px; }
       .product-title { font-size: 0.98rem; }
       .btn { padding: 5px 8px; font-size: 0.78rem; }
+      .brand .title { display: none; } 
     }
   </style>
 </head>
 
 <body>
-  <div class="table-responsive">
-    {% if produtos %}
-    <table class="table table-hover table-bordered mb-0">
-      <thead class="thead-light">
-        <tr>
-          <th scope="col">Nome</th>
-          <th scope="col" class="text-center">Preço</th>
-          <th scope="col" class="text-center" style="width: 160px;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for produto in produtos %}
-        <tr>
-          <td class="align-middle">
-            <div class="product-title">{{ produto.nome }}</div>
-          </td>
-          <td class="align-middle text-right">
-            <div class="price">R$ {{ produto.preco|floatformat:2 }}</div>
-          </td>
-          <td class="align-middle text-center actions">
-            <div>
-              <form action="{% url 'url_editar_produto' produto.id %}" method="get" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-primary" title="Editar {{ produto.nome }}">Editar</button>
-              </form>
-              <form action="{% url 'url_deletar_produto' produto.id %}" method="get" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-outline-danger"
-                  title="Deletar {{ produto.nome }}">Deletar</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="alert alert-info mb-0">Nenhum produto encontrado.</div>
-    {% endif %}
-  </div>
 
-  <form action="{% url 'url_cadastrar_produto' %}" method="get" class="ju">
-    <button type="submit" name="Novo produto" id="newProduct" class="btn btn-success">Novo Produto</button>
-  </form>
+  <header class="topbar" role="banner">
+    <div class="container">
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a class="nav-link {% if request.resolver_match.url_name == 'url_clientes' %}active{% endif %}"
+           href="{% url 'url_clientes' %}">Clientes</a>
+
+        <a class="nav-link {% if request.resolver_match.url_name == 'url_produtos' %}active{% endif %}"
+           href="{% url 'url_produtos' %}">Produtos</a>
+
+        <a class="nav-link {% if request.resolver_match.url_name == 'url_vendas' %}active{% endif %}"
+           href="{% url 'url_vendas' %}">Vendas</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-container">
+
+    <div class="table-responsive">
+      {% if produtos %}
+      <table class="table table-hover table-bordered mb-0">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col" class="text-center">Preço</th>
+            <th scope="col" class="text-center" style="width: 160px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for produto in produtos %}
+          <tr>
+            <td class="align-middle">
+              <div class="product-title">{{ produto.nome }}</div>
+            </td>
+            <td class="align-middle text-right">
+              <div class="price">R$ {{ produto.preco|floatformat:2 }}</div>
+            </td>
+            <td class="align-middle text-center actions">
+              <div>
+                <form action="{% url 'url_editar_produto' produto.id %}" method="get" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-primary" title="Editar {{ produto.nome }}">Editar</button>
+                </form>
+                <form action="{% url 'url_deletar_produto' produto.id %}" method="get" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                    title="Deletar {{ produto.nome }}">Deletar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="alert alert-info mb-0">Nenhum produto encontrado.</div>
+      {% endif %}
+    </div>
+
+    <form action="{% url 'url_cadastrar_produto' %}" method="get" class="ju">
+      <button type="submit" name="Novo produto" id="newProduct" class="btn btn-success">Novo Produto</button>
+    </form>
+
+  </div> 
+
 </body>
 
 </html>

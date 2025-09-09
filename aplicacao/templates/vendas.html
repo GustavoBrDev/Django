@@ -9,6 +9,31 @@
   {% bootstrap_css %}
 </head>
 <body class="bg-light">
+
+  <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm">
+    <div class="container">
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="Alternar navegação">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/clientes">Clientes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/produtos">Produtos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/vendas">Vendas</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h4 mb-0">Vendas</h1>
