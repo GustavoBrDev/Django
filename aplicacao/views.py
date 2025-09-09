@@ -251,14 +251,28 @@ def editar_venda(request, pk):
         # Salvar
         if venda_form.is_valid():
             
-            print("Entrou aqui")
-            venda_form.save()
+            venda_form.save(commit=False)
 
             formset = ItemVendaFormSet(request.POST, instance=venda, prefix=prefix)
 
-            # Funcionou 50% das vezes
-            for item in formset.forms:
-                item.save()
+            if formset.is_valid():
+                with transaction.atomic():
+                    venda_form.save()
+                    formset.save()
+
+            # Dá para simplficar tudo isso aqui com o código acima --> faltava mandar o id pelo DOM
+            '''for item in formset:
+                if item.is_valid():
+                    item.save()
+            
+            for key, value in request.POST.items():
+                if key.startswith( prefix + "-") and key.endswith("-DELETE") and value == "on":
+                    idx = key.split("-")[1]
+                    item_id_key = f"{prefix}-{idx}-id"
+                    item_id = request.POST.get(item_id_key)
+                    if item_id:
+                        ItemVenda.objects.filter(id=item_id).delete()
+               ''' 
 
             return redirect('url_vendas')
         else:
