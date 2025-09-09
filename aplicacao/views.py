@@ -148,7 +148,7 @@ def criar_cliente(request):
             perfil = perfil_form.save()
             cliente.perfil = perfil
             cliente.save()
-            return redirect('criar_venda')  
+            return redirect('url_clientes')  
     else:
         cliente_form = ClienteForm()
         perfil_form = PerfilClienteForm()
@@ -313,12 +313,58 @@ def deletarVenda ( request, id ):
 
     return redirect("url_vendas")
 
+@login_required(login_url="url_entrar")
 def vendas ( request ):
     vendas = Venda.objects.all()
     context = {
         'vendas': vendas,
     }
     return render( request, 'vendas.html', context)
+
+@login_required(login_url="url_entrar")
+def clientes ( request ):
+    clientes = Cliente.objects.all()
+    context = {
+        'clientes': clientes,
+    }
+    return render( request, 'clientes.html', context)
+
+@login_required(login_url="url_entrar")
+def editar_cliente(request, id):
+    cliente = get_object_or_404(Cliente, id=id)
+
+    if request.method == "POST":
+        form = ClienteForm(request.POST, instance=cliente)
+        perfilForm = PerfilClienteForm(request.POST, instance=cliente.perfil)
+        if form.is_valid() and perfilForm.is_valid():
+            form.save()
+            perfilForm.save()
+            return redirect("url_clientes")
+    else:
+        form = ClienteForm(instance=cliente)
+        perfilForm = PerfilClienteForm(instance=cliente.perfil)
+
+    return render(request, 'editarCliente.html', {'cliente_form': form, 'perfil_form': perfilForm})
+
+@login_required(login_url="url_entrar")
+def deletarCliente ( request, id ):
+
+    cliente = get_object_or_404(Cliente, id=id)
+
+    if request.method == "GET":
+
+        context = {
+            'cliente': cliente
+        }
+
+        return render(request, 'deletarCliente.html', context)
+
+    elif request.method == "POST":
+
+        cliente.delete()
+
+
+    return redirect("url_clientes")
 
 def sair(request):
     logout(request)
