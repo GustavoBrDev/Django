@@ -401,6 +401,9 @@ def dashboard ( request, show ): #View --> Responsável por chamar e 'renderizar
     if any(w in show.lower() for w in ["user","users","activeuser","activeusers"]):
         graficos['grafico_usuarios_ativos'] = usuarios_mais_ativos()
     
+    if any(w in show.lower() for w in ["review","evolution","reviews"]):
+        graficos['grafico_evolucao_reviews'] = evolucao_reviews()
+    
     return render(request, 'dashboard.html', graficos)
 
 def usuarios_mais_ativos ():
@@ -439,8 +442,32 @@ def usuarios_mais_ativos ():
     plt.close(fig)
     return grafico_usuarios_ativos
 
-def evolucao_reviews ():
-    pass
+def evolucao_reviews():
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    df = df.dropna(subset=['review_time'])
+    df['data_review'] = pd.to_datetime(df['review_time'], unit='s', errors='coerce')
+    df = df.dropna(subset=['data_review'])
+
+    df['ano'] = df['data_review'].dt.year
+    avaliacoes_por_ano = df.groupby('ano').size().sort_index()
+
+    # Gera o gráfico
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(avaliacoes_por_ano.index, avaliacoes_por_ano.values, marker='o', linestyle='-', color='teal')
+    ax.set_title("Evolução do Número de Avaliações por Ano")
+    ax.set_xticks(avaliacoes_por_ano.index)
+    ax.set_xlabel("Ano")
+    ax.set_ylabel("Quantidade de Avaliações")
+    ax.grid(True)
+    fig.tight_layout()
+
+    grafico_evolucao_reviews = plot_to_base64(fig)
+    plt.close(fig)
+    return grafico_evolucao_reviews
 
 def preco_vs_score ():
     pass
