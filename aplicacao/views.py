@@ -405,7 +405,16 @@ def dashboard ( request, show ): #View --> Responsável por chamar e 'renderizar
         graficos['grafico_evolucao_reviews'] = evolucao_reviews()
     
     if any(w in show.lower() for w in ["price","prices","score", "scores"]):
-        graficos['grafico_price_score'] = preco_vs_score()
+        graficos['grafico_preco_score'] = preco_vs_score()
+    
+    if any(w in show.lower() for w in ["bad","good","emotions", "feeling"]):
+        graficos['grafico_sentimento'] = sentimento_reviews()
+
+    if any(w in show.lower() for w in ["book","top","books", "best", "most"]):
+        graficos['grafico_top_livros'] = livros_mais_avaliados()
+    
+    if any(w in show.lower() for w in ["grade","grade","note", "notes"]):
+        graficos['grafico_distribuicao_notas'] = distribuicao_das_notas()
     
     return render(request, 'dashboard.html', graficos)
 
@@ -496,7 +505,80 @@ def preco_vs_score ():
     return grafico_preco_reviews
 
 def sentimento_reviews ():
-    pass
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    df['review_summary'] = df['review_summary'].fillna('').str.lower()
+    df['sentimento'] = df['review_summary'].apply(analisarTexto)
+    contagem = df['sentimento'].value_counts()
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.pie(
+        contagem.values,
+        labels=contagem.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=['lightgreen', 'salmon', 'lightgray']
+    )
+
+    ax.set_title('Distribuição de Sentimentos nos Sumários das Avaliações')
+    ax.axis('equal')
+    fig.tight_layout()
+
+    grafico_sentimento = plot_to_base64(fig)
+    plt.close(fig)
+    return grafico_sentimento
+
+
+
+def analisarTexto ( texto ):
+    positivas = ['good', 'great', 'excellent', 'i loved', 'i recommend', "the best of all"]
+    negativas = ['bad', 'terrible', 'disappointing', "i didn't like it", "horrible", "fuck", "shit"]
+
+    texto = texto.lower()
+    if any(p in texto for p in positivas):
+        return 'Positivo'
+    elif any(n in texto for n in negativas):
+        return 'Negativo'
+    else:
+        return 'Neutro'
+
+
+def distribuicao_das_notas():
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    plt.figure(figsize=(10, 6))
+    df['review_score'].value_counts().sort_index().plot(kind='bar', color='skyblue')
+    plt.title('Distribuição das Notas das Avaliações')
+    plt.xlabel('Nota (Score)')
+    plt.ylabel('Quantidade de Avaliações')
+    plt.grid(axis='y', linestyle='--')
+    plt.tight_layout()
+    grafico_distribuicao_notas = plot_to_base64(plt.gcf())
+    plt.close()
+    return grafico_distribuicao_notas
+
+def livros_mais_avaliados():
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    top_10_livros = df['title'].value_counts().nlargest(10)
+    plt.figure(figsize=(12, 8))
+    top_10_livros.sort_values().plot(kind='barh', color='coral')
+    plt.title('Top 10 Livros com Mais Avaliações')
+    plt.xlabel('Número de Avaliações')
+    plt.ylabel('Título do Livro')
+    plt.tight_layout()
+    grafico_top_livros = plot_to_base64(plt.gcf())
+    plt.close()
+    return grafico_top_livros
 
 # Outros
 
