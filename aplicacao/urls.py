@@ -21,6 +21,9 @@ urlpatterns = [
     path('clientes/<int:id>/editar/', views.editar_cliente, name='editar_cliente'),
     path('deletar-cliente/<int:id>', views.deletarCliente, name='deletar_cliente'),
 
+    # Dashboard
+    path('dashboard/<str:show>/', views.dashboard, name='dashboard'),
+
     # Autenticação
     path('entrar', views.entrar, name="url_entrar"),
     path('cad_user', views.cad_user, name="url_cad_user"),

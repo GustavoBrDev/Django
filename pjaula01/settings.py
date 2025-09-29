@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import matplotlib
+matplotlib.use('Agg')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'aplicacao',
     'bootstrap4',
-    'phone_field'
+    'phone_field',
+    "pandas",
+    "io",
+    "base64",
+    "urllib"
 ]
 
 MIDDLEWARE = [

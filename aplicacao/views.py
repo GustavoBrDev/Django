@@ -8,8 +8,30 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+import io
+import urllib, base64
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Aqui são feitas as views
+
+# Funções auxiliares
+
+def get_dataframe():
+    # Busca todos os dados do banco e retorna um DataFrame do Pandas
+    avaliacoes = Avaliacao.objects.all().values()
+    df = pd.DataFrame(list(avaliacoes))
+    df = df.dropna()
+    return df
+def plot_to_base64(fig):
+    # Converte uma figura Matplotlib para uma string base64 para ser usada no HTML
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    string = base64.b64encode(buf.read())
+    return urllib.parse.quote(string)
+
 
 # Produtos
 @login_required(login_url="url_entrar")
@@ -367,6 +389,64 @@ def cad_user(request):
         return render(request, "cad_user.html")
     else:
         return render(request, "cad_user.html")
+
+# Dashboard
+
+
+@login_required(login_url="url_entrar")
+def dashboard ( request, show ): #View --> Responsável por chamar e 'renderizar' os gráficos
+    
+    graficos = {}
+
+    if any(w in show.lower() for w in ["user","users","activeuser","activeusers"]):
+        graficos['grafico_usuarios_ativos'] = usuarios_mais_ativos()
+    
+    return render(request, 'dashboard.html', graficos)
+
+def usuarios_mais_ativos ():
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    df['profile_name'] = df['profile_name'].where(pd.notnull(df['profile_name']), None)
+    df['profile_name'] = df['profile_name'].astype(str).str.strip()
+
+    invalid_literals = {'', 'nan', 'none', 'null', 'desconhecido', 'n/d', 'na'}
+    mask_invalid = df['profile_name'].str.lower().isin(invalid_literals)
+
+    df.loc[mask_invalid, 'profile_name'] = np.nan
+    df = df.dropna(subset=['profile_name'])
+
+    df['primeiro_nome'] = df['profile_name'].str.split().str[:2].str.join(" ")
+
+    df.loc[df['primeiro_nome'].str.strip() == '', 'primeiro_nome'] = np.nan
+    df = df.dropna(subset=['primeiro_nome'])
+    df = df[df['primeiro_nome'].str.len() >= 3]
+
+    usuarios_ativos = df['primeiro_nome'].value_counts().nlargest(15).sort_values()
+
+    # Gera o gráfico
+    fig, ax = plt.subplots(figsize=(10, 6))
+    cores = ['#72BCA5', '#F4DDB4', '#F1AE2B', '#BC0B27', '#4A2512']  
+    usuarios_ativos.plot(kind='barh', ax=ax, color=cores)
+    ax.set_title("Top 15 Usuários Mais Ativos")
+    ax.set_xlabel("Número de Avaliações")
+    ax.set_ylabel("Usuário")
+    plt.tight_layout()
+
+    grafico_usuarios_ativos = plot_to_base64(fig)
+    plt.close(fig)
+    return grafico_usuarios_ativos
+
+def evolucao_reviews ():
+    pass
+
+def preco_vs_score ():
+    pass
+
+def sentimento_reviews ():
+    pass
 
 # Outros
 
