@@ -404,6 +404,9 @@ def dashboard ( request, show ): #View --> Responsável por chamar e 'renderizar
     if any(w in show.lower() for w in ["review","evolution","reviews"]):
         graficos['grafico_evolucao_reviews'] = evolucao_reviews()
     
+    if any(w in show.lower() for w in ["price","prices","score", "scores"]):
+        graficos['grafico_price_score'] = preco_vs_score()
+    
     return render(request, 'dashboard.html', graficos)
 
 def usuarios_mais_ativos ():
@@ -470,7 +473,27 @@ def evolucao_reviews():
     return grafico_evolucao_reviews
 
 def preco_vs_score ():
-    pass
+
+    # Tratamento de Dados
+    df = get_dataframe()
+    df = df.copy()
+
+    df = df[df['price'] > 0]
+    df = df[df['price'] < 100]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(df['price'], df['review_score'], alpha=0.3, color='darkblue')
+
+    ax.set_title("Correlação entre Preço e Nota da Avaliação")
+    ax.set_xlabel("Preço (R$)")
+    ax.set_ylabel("Nota da Avaliação")
+    ax.grid(True)
+
+    fig.tight_layout()
+
+    grafico_preco_reviews = plot_to_base64(fig)
+    plt.close(fig)
+    return grafico_preco_reviews
 
 def sentimento_reviews ():
     pass

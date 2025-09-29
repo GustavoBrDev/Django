@@ -39,7 +39,7 @@
             <h5 class="card-title">Evolução das Reviews</h5>
             <div class="ratio ratio-4x3">
               <img src="data:image/png;base64,{{ grafico_evolucao_reviews }}"
-                   alt="Gráfico Usuários Mais Ativos"
+                   alt="Gráfico de Reviews"
                    class="img-fluid"/>
             </div>
           </div>
@@ -48,14 +48,14 @@
       {% endif %}
 
       {# Gráfico 3 #}
-      {% if grafico_usuarios_ativos %}
+      {% if grafico_price_score %}
       <div class="col">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title">Top 15 Usuários Mais Ativos</h5>
+            <h5 class="card-title">Relação Preço e Pontuação</h5>
             <div class="ratio ratio-4x3">
-              <img src="data:image/png;base64,{{ grafico_usuarios_ativos }}"
-                   alt="Gráfico Usuários Mais Ativos"
+              <img src="data:image/png;base64,{{ grafico_price_score }}"
+                   alt="Gráfico de Preço e Pontuação"
                    class="img-fluid"/>
             </div>
           </div>
