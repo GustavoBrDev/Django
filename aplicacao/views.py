@@ -510,8 +510,8 @@ def sentimento_reviews ():
     df = get_dataframe()
     df = df.copy()
 
-    df['review_summary'] = df['review_summary'].fillna('').str.lower()
-    df['sentimento'] = df['review_summary'].apply(analisarTexto)
+    df['review_text'] = df['review_text'].fillna('').str.lower()
+    df['sentimento'] = df['review_text'].apply(analisarTexto)
     contagem = df['sentimento'].value_counts()
 
     fig, ax = plt.subplots(figsize=(8, 6))
